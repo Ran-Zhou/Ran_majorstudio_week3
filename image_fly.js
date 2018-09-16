@@ -1,8 +1,8 @@
 // Create app namespace
 var app = app || {};
 window.app = app;
-
 app.CLEAR_COLOR_FILL = '#292522';
+
 imageList = ["picture1.png", "picture1.png"]
 
 /**
@@ -15,38 +15,31 @@ function SpriteRec(options) {
     this.speed = options.speed || { x:0, y:0 };
 
     this.rotation = options.rotation || 0;
+    this.face = options.face || '';
     this.img = options.img;
 }
 
-function NewSprite() {
+function NewSprite(face, xPos, yPos, xVel, yVel) {
     var sp = new SpriteRec({
         position: {
-            x: 0,
-            y: 0
+            x: xPos,
+            y: yPos
         },
         speed: {
-            x: 0,
-            y: 0
+            x: xVel,
+            y: yVel
         },
+        face: face,
+        rotation: 0,
         img: null
     });
     spriteInit(sp)
     return sp;
 }
 
-function spriteInit(sp){
-    var idx = Math.floor(Math.random() * imageList.length)
-    sp.img = new Image();
-    sp.img.src='images/' + imageList[idx];
-    sp.position.y = Math.random() * app.canv.height
-    sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
-    sp.position.speed.x = Math.random() * 1 - 0.5
-}
-
-function spriteReturn(sp){
-    spriteInit(sp)
-}
-
+/**
+ *  Original lab-like functions
+ */
 function handleSprite(sp) {
     // Move by speed, bounce off screen edges.
     sp.position.x += sp.speed.x;
@@ -76,7 +69,26 @@ function handleSprite(sp) {
 }
 
 function drawSprite(sp) {
+    // app.ctx.fillStyle = 'transparent';
+    // app.ctx.strokeStyle = '#D6A692';
+    // app.ctx.beginPath();
+    // app.ctx.arc(sp.position.x, sp.position.y, 5, sp.rotation, sp.rotation + 2*Math.PI);
+    // app.ctx.lineTo(sp.position.x, sp.position.y);
+    // app.ctx.closePath();
+    // app.ctx.stroke();
+
     app.ctx.drawImage(sp.img, sp.position.x, sp.position.y);
+}
+
+
+
+function spriteInit(sp){
+    var idx = Math.floor(Math.random() * imageList.length)
+    sp.img = new Image();
+    sp.img.src='images/' + imageList[idx];
+    // sp.position.y = Math.random() * app.canv.height
+    // sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
+    // sp.position.speed.x = Math.random() * 1 - 0.5
 }
 
 function drawBackground() {
@@ -131,7 +143,7 @@ function spriteBehavior() {
 function draw() {
     drawBackground();
 
-    spriteBehavior();
+    // spriteBehavior(); // Din kod!
 
     /**
      *  Loop though all sprites. (Several loops in real engine.)
@@ -165,6 +177,16 @@ function init() {
     app.canv.style.setProperty('height', '100%');
     app.ctx = app.canv.getContext('2d');
 
+    /**
+     *  Load texture data
+     */
+        // TextureData *sheepFace, *blackFace, *dogFace, *foodFace;
+        // LoadTGATextureSimple("bilder/leaves.tga", &backgroundTexID); // Bakgrund
+        // sheepFace = GetFace("bilder/sheep.tga"); // Ett får
+    var sheepFace = 'a';
+    // blackFace = GetFace("bilder/blackie.tga"); // Ett svart får
+    // dogFace = GetFace("bilder/dog.tga"); // En hund
+    // foodFace = GetFace("bilder/mat.tga"); // Mat
 
     app.FLOCK_SIZE = 50;
     app.FLOCK_MAX_DISTANCE_SQUARED = app.canv.width*app.canv.width / 9;
@@ -175,11 +197,15 @@ function init() {
      */
     app.spriteList = new Array(app.FLOCK_SIZE);
     for (var i = 0; i < app.spriteList.length; i++) {
-        app.spriteList[i] = NewSprite()
+        app.spriteList[i] = NewSprite(
+            sheepFace,  // graphics
+            Math.random() * app.canv.width,  // x position
+            Math.random() * app.canv.height,  // y position
+            Math.random() * 1 - .5,  // x speed
+            Math.random() * 1 - .5);  // y speed
     };
 }
 
-// program start from here
 init();
 (function loop(time) {
     update(time);
