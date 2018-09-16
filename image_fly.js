@@ -13,13 +13,11 @@ function SpriteRec(options) {
 
     this.position = options.position || { x:0, y:0 };
     this.speed = options.speed || { x:0, y:0 };
-
     this.rotation = options.rotation || 0;
-    this.face = options.face || '';
     this.img = options.img;
 }
 
-function NewSprite(face, xPos, yPos, xVel, yVel) {
+function NewSprite(xPos, yPos, xVel, yVel) {
     var sp = new SpriteRec({
         position: {
             x: xPos,
@@ -29,7 +27,6 @@ function NewSprite(face, xPos, yPos, xVel, yVel) {
             x: xVel,
             y: yVel
         },
-        face: face,
         rotation: 0,
         img: null
     });
@@ -177,17 +174,6 @@ function init() {
     app.canv.style.setProperty('height', '100%');
     app.ctx = app.canv.getContext('2d');
 
-    /**
-     *  Load texture data
-     */
-        // TextureData *sheepFace, *blackFace, *dogFace, *foodFace;
-        // LoadTGATextureSimple("bilder/leaves.tga", &backgroundTexID); // Bakgrund
-        // sheepFace = GetFace("bilder/sheep.tga"); // Ett får
-    var sheepFace = 'a';
-    // blackFace = GetFace("bilder/blackie.tga"); // Ett svart får
-    // dogFace = GetFace("bilder/dog.tga"); // En hund
-    // foodFace = GetFace("bilder/mat.tga"); // Mat
-
     app.FLOCK_SIZE = 50;
     app.FLOCK_MAX_DISTANCE_SQUARED = app.canv.width*app.canv.width / 9;
     app.averagePosition = new Array(app.FLOCK_SIZE);
@@ -198,7 +184,6 @@ function init() {
     app.spriteList = new Array(app.FLOCK_SIZE);
     for (var i = 0; i < app.spriteList.length; i++) {
         app.spriteList[i] = NewSprite(
-            sheepFace,  // graphics
             Math.random() * app.canv.width,  // x position
             Math.random() * app.canv.height,  // y position
             Math.random() * 1 - .5,  // x speed
