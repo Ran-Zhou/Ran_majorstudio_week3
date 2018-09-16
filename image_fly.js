@@ -13,22 +13,21 @@ function SpriteRec(options) {
 
     this.position = options.position || { x:0, y:0 };
     this.speed = options.speed || { x:0, y:0 };
-    this.rotation = options.rotation || 0;
     this.img = options.img;
 }
 
-function NewSprite(xPos, yPos, xVel, yVel) {
+function NewSprite() {
     var sp = new SpriteRec({
         position: {
-            x: xPos,
-            y: yPos
+            x: 0,
+            y: 0
         },
         speed: {
-            x: xVel,
-            y: yVel
+            x: 0,
+            y: 0
         },
-        rotation: 0,
-        img: null
+        img: null,
+        pastTime: 0
     });
     spriteInit(sp)
     return sp;
@@ -40,40 +39,21 @@ function NewSprite(xPos, yPos, xVel, yVel) {
 function handleSprite(sp) {
     // Move by speed, bounce off screen edges.
     sp.position.x += sp.speed.x;
-    sp.position.y += sp.speed.y;
+    // sp.position.y += sp.speed.y;
     if (sp.position.x < 0)
     {
         sp.speed.x = Math.abs(sp.speed.x);
         sp.position.x = 0;
     }
-    if (sp.position.y < 0)
-    {
-        sp.speed.y = Math.abs(sp.speed.y);
-        sp.position.y = 0;
-    }
+
     if (sp.position.x > app.canv.width)
     {
         sp.speed.x = -Math.abs(sp.speed.x);
         sp.position.x = app.canv.width;
     }
-    if (sp.position.y > app.canv.height)
-    {
-        sp.speed.y = -Math.abs(sp.speed.y);
-        sp.position.y = app.canv.height;
-    }
-
-    sp.rotation = Math.atan2(sp.speed.y, sp.speed.x);
 }
 
-function drawSprite(sp) {
-    // app.ctx.fillStyle = 'transparent';
-    // app.ctx.strokeStyle = '#D6A692';
-    // app.ctx.beginPath();
-    // app.ctx.arc(sp.position.x, sp.position.y, 5, sp.rotation, sp.rotation + 2*Math.PI);
-    // app.ctx.lineTo(sp.position.x, sp.position.y);
-    // app.ctx.closePath();
-    // app.ctx.stroke();
-
+function drawSprite(dt, sp) {
     app.ctx.drawImage(sp.img, sp.position.x, sp.position.y);
 }
 
@@ -83,9 +63,9 @@ function spriteInit(sp){
     var idx = Math.floor(Math.random() * imageList.length)
     sp.img = new Image();
     sp.img.src='images/' + imageList[idx];
-    // sp.position.y = Math.random() * app.canv.height
-    // sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
-    // sp.position.speed.x = Math.random() * 1 - 0.5
+    sp.position.y = Math.random() * app.canv.height
+    sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
+    sp.speed.x = Math.random() * 3 + 0.5
 }
 
 function drawBackground() {
@@ -93,54 +73,13 @@ function drawBackground() {
     app.ctx.fillRect(0, 0, app.canv.width, app.canv.height);
 }
 
-function spriteBehavior() {
-    // calculate stuff
-    for(var i = 0; i < app.spriteList.length; i++) {
-        var count = 0;
-        var currentSprite = app.spriteList[i];
-        app.averagePosition[i] = { x: 0, y: 0 };
-
-        for(var j = 0; j < app.spriteList.length; j++) {
-            var dist = {
-                x: app.spriteList[j].position.x - currentSprite.position.x,
-                y: app.spriteList[j].position.y - currentSprite.position.y
-            };
-
-            var distSquared = dist.x * dist.x + dist.y * dist.y;
-
-            if(distSquared < app.FLOCK_MAX_DISTANCE_SQUARED) {
-                app.averagePosition[i].x += dist.x;
-                app.averagePosition[i].y += dist.y;
-                count++;
-            }
-        }
-
-        if(count > 0) {
-            app.averagePosition[i].x /= count;
-            app.averagePosition[i].y /= count;
-        }
-    }
-
-    var cohesionWeight = 0.0001;
-    // apply the stuff calculated above
-    for(var i = 0; i < app.spriteList.length; i++) {
-        app.spriteList[i].speed.x += app.averagePosition[i].x * cohesionWeight;
-        app.spriteList[i].speed.y += app.averagePosition[i].y * cohesionWeight;
-
-        app.spriteList[i].position.x += app.spriteList[i].speed.x;
-        app.spriteList[i].position.y += app.spriteList[i].speed.y;
-    }
-}
-
 
 /**
  *  Loop-based app structure
  */
 
-function draw() {
+function draw(dt) {
     drawBackground();
-
-    // spriteBehavior(); // Din kod!
 
     /**
      *  Loop though all sprites. (Several loops in real engine.)
@@ -149,7 +88,7 @@ function draw() {
     for(var i = 0; i < app.spriteList.length; i++) {
         sp = app.spriteList[i];
         handleSprite(sp);
-        drawSprite(sp);
+        drawSprite(dt, sp);
     }
 }
 
@@ -174,20 +113,15 @@ function init() {
     app.canv.style.setProperty('height', '100%');
     app.ctx = app.canv.getContext('2d');
 
-    app.FLOCK_SIZE = 50;
+    app.FLOCK_SIZE = 10;
     app.FLOCK_MAX_DISTANCE_SQUARED = app.canv.width*app.canv.width / 9;
-    app.averagePosition = new Array(app.FLOCK_SIZE);
 
     /**
      *  Create sprites
      */
     app.spriteList = new Array(app.FLOCK_SIZE);
     for (var i = 0; i < app.spriteList.length; i++) {
-        app.spriteList[i] = NewSprite(
-            Math.random() * app.canv.width,  // x position
-            Math.random() * app.canv.height,  // y position
-            Math.random() * 1 - .5,  // x speed
-            Math.random() * 1 - .5);  // y speed
+        app.spriteList[i] = NewSprite()
     };
 }
 
