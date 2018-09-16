@@ -19,10 +19,28 @@ function SpriteRec(options) {
     this.img = options.img;
 }
 
+function NewSprite(face, xPos, yPos, xVel, yVel) {
+    var sp = new SpriteRec({
+        position: {
+            x: xPos,
+            y: yPos
+        },
+        speed: {
+            x: xVel,
+            y: yVel
+        },
+        face: face,
+        rotation: 0,
+        img: null
+    });
+    spriteInit(sp)
+    return sp;
+}
+
 /**
  *  Original lab-like functions
  */
-function HandleSprite(sp) {
+function handleSprite(sp) {
     // Move by speed, bounce off screen edges.
     sp.position.x += sp.speed.x;
     sp.position.y += sp.speed.y;
@@ -50,38 +68,21 @@ function HandleSprite(sp) {
     sp.rotation = Math.atan2(sp.speed.y, sp.speed.x);
 }
 
-function DrawSprite(sp) {
-    app.ctx.fillStyle = 'transparent';
-    app.ctx.strokeStyle = '#D6A692';
-    app.ctx.beginPath();
-    app.ctx.arc(sp.position.x, sp.position.y, 5, sp.rotation, sp.rotation + 2*Math.PI);
-    app.ctx.lineTo(sp.position.x, sp.position.y);
-    app.ctx.closePath();
-    app.ctx.stroke();
+function drawSprite(sp) {
+    // app.ctx.fillStyle = 'transparent';
+    // app.ctx.strokeStyle = '#D6A692';
+    // app.ctx.beginPath();
+    // app.ctx.arc(sp.position.x, sp.position.y, 5, sp.rotation, sp.rotation + 2*Math.PI);
+    // app.ctx.lineTo(sp.position.x, sp.position.y);
+    // app.ctx.closePath();
+    // app.ctx.stroke();
 
     app.ctx.drawImage(sp.img, sp.position.x, sp.position.y);
 }
 
-function NewSprite(face, xPos, yPos, xVel, yVel) {
 
-    var sp = new SpriteRec({
-        position: {
-            x: xPos,
-            y: yPos
-        },
-        speed: {
-            x: xVel,
-            y: yVel
-        },
-        face: face,
-        rotation: 0,
-        img: null
-    });
-    SpriteInit(sp)
-    return sp;
-}
 
-function SpriteInit(sp){
+function spriteInit(sp){
     var idx = Math.floor(Math.random() * imageList.length)
     sp.img = new Image();
     sp.img.src='images/' + imageList[idx];
@@ -90,12 +91,12 @@ function SpriteInit(sp){
     // sp.position.speed.x = Math.random() * 1 - 0.5
 }
 
-function DrawBackground() {
+function drawBackground() {
     app.ctx.fillStyle = app.CLEAR_COLOR_FILL;
     app.ctx.fillRect(0, 0, app.canv.width, app.canv.height);
 }
 
-function SpriteBehavior() {
+function spriteBehavior() {
     // calculate stuff
     for(var i = 0; i < app.spriteList.length; i++) {
         var count = 0;
@@ -140,9 +141,9 @@ function SpriteBehavior() {
  */
 
 function draw() {
-    DrawBackground();
+    drawBackground();
 
-    SpriteBehavior(); // Din kod!
+    spriteBehavior(); // Din kod!
 
     /**
      *  Loop though all sprites. (Several loops in real engine.)
@@ -150,8 +151,8 @@ function draw() {
     var sp;
     for(var i = 0; i < app.spriteList.length; i++) {
         sp = app.spriteList[i];
-        HandleSprite(sp);
-        DrawSprite(sp);
+        handleSprite(sp);
+        drawSprite(sp);
     }
 }
 
@@ -182,7 +183,7 @@ function init() {
         // TextureData *sheepFace, *blackFace, *dogFace, *foodFace;
         // LoadTGATextureSimple("bilder/leaves.tga", &backgroundTexID); // Bakgrund
         // sheepFace = GetFace("bilder/sheep.tga"); // Ett får
-    var sheepFace = 'this should be an Image instead';
+    var sheepFace = 'a';
     // blackFace = GetFace("bilder/blackie.tga"); // Ett svart får
     // dogFace = GetFace("bilder/dog.tga"); // En hund
     // foodFace = GetFace("bilder/mat.tga"); // Mat
