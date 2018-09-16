@@ -15,12 +15,38 @@ function SpriteRec(options) {
     this.speed = options.speed || { x:0, y:0 };
 
     this.rotation = options.rotation || 0;
-    this.face = options.face || '';
+    this.img = options.img;
 }
 
-/**
- *  Original lab-like functions
- */
+function NewSprite() {
+    var sp = new SpriteRec({
+        position: {
+            x: 0,
+            y: 0
+        },
+        speed: {
+            x: 0,
+            y: 0
+        },
+        img: null
+    });
+    spriteInit(sp)
+    return sp;
+}
+
+function spriteInit(sp){
+    var idx = Math.floor(Math.random() * imageList.length)
+    sp.img = new Image();
+    sp.img.src='images/' + imageList[idx];
+    sp.position.y = Math.random() * app.canv.height
+    sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
+    sp.position.speed.x = Math.random() * 1 - 0.5
+}
+
+function spriteReturn(sp){
+    spriteInit(sp)
+}
+
 function handleSprite(sp) {
     // Move by speed, bounce off screen edges.
     sp.position.x += sp.speed.x;
@@ -51,35 +77,6 @@ function handleSprite(sp) {
 
 function drawSprite(sp) {
     app.ctx.drawImage(sp.img, sp.position.x, sp.position.y);
-}
-
-function NewSprite() {
-    var sp = new SpriteRec({
-        position: {
-            x: 0,
-            y: 0
-        },
-        speed: {
-            x: 0,
-            y: 0
-        },
-        img: null
-    });
-    spriteInit(sp)
-    return sp;
-}
-
-function spriteInit(sp){
-    var idx = Math.floor(Math.random() * imageList.length)
-    sp.img = new Image();
-    sp.img.src='images/' + imageList[idx];
-    sp.position.y = Math.random() * app.canv.height
-    sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
-    sp.position.speed.x = Math.random() * 1 - 0.5
-}
-
-function spriteReturn(sp){
-    spriteInit(sp)
 }
 
 function drawBackground() {

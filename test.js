@@ -1,8 +1,9 @@
 // Create app namespace
 var app = app || {};
 window.app = app;
-
 app.CLEAR_COLOR_FILL = '#292522';
+
+imageList = ["picture1.png", "picture1.png"]
 
 /**
  *  SpriteRec class
@@ -15,6 +16,7 @@ function SpriteRec(options) {
 
     this.rotation = options.rotation || 0;
     this.face = options.face || '';
+    this.img = options.img;
 }
 
 /**
@@ -56,6 +58,8 @@ function DrawSprite(sp) {
     app.ctx.lineTo(sp.position.x, sp.position.y);
     app.ctx.closePath();
     app.ctx.stroke();
+
+    app.ctx.drawImage(sp.img, sp.position.x, sp.position.y);
 }
 
 function NewSprite(face, xPos, yPos, xVel, yVel) {
@@ -70,10 +74,20 @@ function NewSprite(face, xPos, yPos, xVel, yVel) {
             y: yVel
         },
         face: face,
-        rotation: 0
+        rotation: 0,
+        img: null
     });
-
+    SpriteInit(sp)
     return sp;
+}
+
+function SpriteInit(sp){
+    var idx = Math.floor(Math.random() * imageList.length)
+    sp.img = new Image();
+    sp.img.src='images/' + imageList[idx];
+    // sp.position.y = Math.random() * app.canv.height
+    // sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
+    // sp.position.speed.x = Math.random() * 1 - 0.5
 }
 
 function DrawBackground() {
@@ -82,11 +96,6 @@ function DrawBackground() {
 }
 
 function SpriteBehavior() {
-    // Lägg till din labbkod här. Det går bra att ändra var som helst i
-    // koden i övrigt, men mycket kan samlas här. Du kan utgå från den
-    // globala listroten, gSpriteRoot, för att kontrollera alla sprites
-    // hastigheter och positioner, eller arbeta från egna globaler.
-
     // calculate stuff
     for(var i = 0; i < app.spriteList.length; i++) {
         var count = 0;
