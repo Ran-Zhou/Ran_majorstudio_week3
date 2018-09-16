@@ -3,7 +3,6 @@ var app = app || {};
 window.app = app;
 
 app.CLEAR_COLOR_FILL = '#292522';
-imageList = ["picture1.png", "picture1.png"]
 
 /**
  *  SpriteRec class
@@ -21,7 +20,7 @@ function SpriteRec(options) {
 /**
  *  Original lab-like functions
  */
-function handleSprite(sp) {
+function HandleSprite(sp) {
     // Move by speed, bounce off screen edges.
     sp.position.x += sp.speed.x;
     sp.position.y += sp.speed.y;
@@ -49,45 +48,45 @@ function handleSprite(sp) {
     sp.rotation = Math.atan2(sp.speed.y, sp.speed.x);
 }
 
-function drawSprite(sp) {
-    app.ctx.drawImage(sp.img, sp.position.x, sp.position.y);
+function DrawSprite(sp) {
+    app.ctx.fillStyle = 'transparent';
+    app.ctx.strokeStyle = '#D6A692';
+    app.ctx.beginPath();
+    app.ctx.arc(sp.position.x, sp.position.y, 5, sp.rotation, sp.rotation + 2*Math.PI);
+    app.ctx.lineTo(sp.position.x, sp.position.y);
+    app.ctx.closePath();
+    app.ctx.stroke();
 }
 
-function NewSprite() {
+function NewSprite(face, xPos, yPos, xVel, yVel) {
+
     var sp = new SpriteRec({
         position: {
-            x: 0,
-            y: 0
+            x: xPos,
+            y: yPos
         },
         speed: {
-            x: 0,
-            y: 0
+            x: xVel,
+            y: yVel
         },
-        img: null
+        face: face,
+        rotation: 0
     });
-    spriteInit(sp)
+
     return sp;
 }
 
-function spriteInit(sp){
-    var idx = Math.floor(Math.random() * imageList.length)
-    sp.img = new Image();
-    sp.img.src='images/' + imageList[idx];
-    sp.position.y = Math.random() * app.canv.height
-    sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
-    sp.position.speed.x = Math.random() * 1 - 0.5
-}
-
-function spriteReturn(sp){
-    spriteInit(sp)
-}
-
-function drawBackground() {
+function DrawBackground() {
     app.ctx.fillStyle = app.CLEAR_COLOR_FILL;
     app.ctx.fillRect(0, 0, app.canv.width, app.canv.height);
 }
 
-function spriteBehavior() {
+function SpriteBehavior() {
+    // Lägg till din labbkod här. Det går bra att ändra var som helst i
+    // koden i övrigt, men mycket kan samlas här. Du kan utgå från den
+    // globala listroten, gSpriteRoot, för att kontrollera alla sprites
+    // hastigheter och positioner, eller arbeta från egna globaler.
+
     // calculate stuff
     for(var i = 0; i < app.spriteList.length; i++) {
         var count = 0;
@@ -132,9 +131,9 @@ function spriteBehavior() {
  */
 
 function draw() {
-    drawBackground();
+    DrawBackground();
 
-    spriteBehavior();
+    SpriteBehavior(); // Din kod!
 
     /**
      *  Loop though all sprites. (Several loops in real engine.)
@@ -142,8 +141,8 @@ function draw() {
     var sp;
     for(var i = 0; i < app.spriteList.length; i++) {
         sp = app.spriteList[i];
-        handleSprite(sp);
-        drawSprite(sp);
+        HandleSprite(sp);
+        DrawSprite(sp);
     }
 }
 
@@ -168,6 +167,16 @@ function init() {
     app.canv.style.setProperty('height', '100%');
     app.ctx = app.canv.getContext('2d');
 
+    /**
+     *  Load texture data
+     */
+        // TextureData *sheepFace, *blackFace, *dogFace, *foodFace;
+        // LoadTGATextureSimple("bilder/leaves.tga", &backgroundTexID); // Bakgrund
+        // sheepFace = GetFace("bilder/sheep.tga"); // Ett får
+    var sheepFace = 'this should be an Image instead';
+    // blackFace = GetFace("bilder/blackie.tga"); // Ett svart får
+    // dogFace = GetFace("bilder/dog.tga"); // En hund
+    // foodFace = GetFace("bilder/mat.tga"); // Mat
 
     app.FLOCK_SIZE = 50;
     app.FLOCK_MAX_DISTANCE_SQUARED = app.canv.width*app.canv.width / 9;
@@ -178,11 +187,15 @@ function init() {
      */
     app.spriteList = new Array(app.FLOCK_SIZE);
     for (var i = 0; i < app.spriteList.length; i++) {
-        app.spriteList[i] = NewSprite()
+        app.spriteList[i] = NewSprite(
+            sheepFace,  // graphics
+            Math.random() * app.canv.width,  // x position
+            Math.random() * app.canv.height,  // y position
+            Math.random() * 1 - .5,  // x speed
+            Math.random() * 1 - .5);  // y speed
     };
 }
 
-// program start from here
 init();
 (function loop(time) {
     update(time);
