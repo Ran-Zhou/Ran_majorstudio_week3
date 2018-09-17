@@ -1,3 +1,4 @@
+
 // Create app namespace
 var app = app || {};
 window.app = app;
@@ -5,36 +6,23 @@ app.CLEAR_COLOR_FILL = '#000000';
 
 imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png", "10.png"]
 
-/**
- *  SpriteRec class
- */
-function SpriteRec(options) {
-    options = options || {};
+function Sprite(){
+    this.position = { x:0, y:0 };
+    this.speed = { x:0, y:0 };
 
-    this.position = options.position || { x:0, y:0 };
-    this.speed = options.speed || { x:0, y:0 };
-    this.img = options.img;
+    this.img = new Image();
+    var idx = Math.floor(Math.random() * imageList.length)
+    this.img.src = 'images/' + imageList[idx];
+    this.position.y = Math.random() * app.canv.height
+    this.position.x = Math.random() > 0.5 ? 0 : app.canv.width
+    this.speed.x = Math.random() * 2 + 0.5
 }
 
-function NewSprite() {
-    var sp = new SpriteRec({
-        position: {
-            x: 0,
-            y: 0
-        },
-        speed: {
-            x: 0,
-            y: 0
-        },
-        img: null,
-        //img: [0]
-        pastTime: 0
-    });
-    spriteInit(sp)
-    return sp;
 
+
+Sprite.prototype.draw = function(dt){
+    app.ctx.drawImage(this.img, this.position.x, this.position.y);
 }
-
 
 /**
  *  Original lab-like functions
@@ -65,19 +53,11 @@ function drawSprite(dt, sp) {
 
 function spriteInit(sp){
     var idx = Math.floor(Math.random() * imageList.length)
-
-
-
-
     sp.img = new Image();
     sp.img.src = 'images/' + imageList[idx];
     sp.position.y = Math.random() * app.canv.height
     sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
     sp.speed.x = Math.random() * 2 + 0.5
-
-
-
-
 }
 
 function drawBackground() {
@@ -86,29 +66,14 @@ function drawBackground() {
 }
 
 
-
-/**
- *  Loop-based app structure
- */
-
-function draw(dt) {
+function update(dt) {
     drawBackground();
-
-    /**
-     *  Loop though all sprites. (Several loops in real engine.)
-     */
     var sp;
     for(var i = 0; i < app.spriteList.length; i++) {
         sp = app.spriteList[i];
         handleSprite(sp);
-        drawSprite(dt, sp);
-
+        sp.draw(dt);
     }
-
-}
-
-function update() {
-
 }
 
 function init() {
@@ -136,13 +101,12 @@ function init() {
      */
     app.spriteList = new Array(app.FLOCK_SIZE);
     for (var i = 0; i < app.spriteList.length; i++) {
-        app.spriteList[i] = NewSprite()
+        app.spriteList[i] = new Sprite()
     };
 }
 
 init();
 (function loop(time) {
     update(time);
-    draw(time);
     window.requestAnimationFrame(loop);
 })();
