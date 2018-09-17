@@ -5,7 +5,7 @@ window.app = app;
 app.CLEAR_COLOR_FILL = '#000000';
 
 var g_spriteNum = 20;
-var g_imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png", "10.png"];
+var g_imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png", "10.png", "12.png"];
 
 
 ///////////// class Sprite start here //////////////////
