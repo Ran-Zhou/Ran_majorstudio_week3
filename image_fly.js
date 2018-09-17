@@ -19,15 +19,22 @@ function Sprite(imageName){
     this.img = new Image();
     var self = this;
     this.img.onload = function(){
-        self.restart();
+        self.onImageLoaded();
     };
     this.img.src = imageName;
+    // this.img = document.getElementById("img1");
+    this.restart();
 }
 
 Sprite.State = { "Loading":0, "Idle": 1, "Move": 2, "FlyAway":3 }
 
+Sprite.prototype.onImageLoaded = function() {
+    this.restart();
+}
+
 Sprite.prototype.restart = function() {
     this.state = Sprite.State.Idle;
+    this.opacity = 0.4;
     this.pastTime = 0;
     this.delay = Math.random() * 8000; // randomly delay appear
     this.position.y = (Math.random() + 0.03) * app.canv.height * 0.85; // keep image not too close to bottom
@@ -42,7 +49,9 @@ Sprite.prototype.restart = function() {
 
 Sprite.prototype.draw = function(){
     if(this.state == Sprite.State.Idle) return;
+    app.ctx.globalAlpha = this.opacity;
     app.ctx.drawImage(this.img, this.position.x, this.position.y);
+    app.ctx.globalAlpha = 1;
 }
 
 Sprite.prototype.update = function(dt){
@@ -86,10 +95,14 @@ Sprite.prototype.isCollide = function(x, y) {
     return true;
 }
 
-Sprite.prototype.onCollide = function() {
+Sprite.prototype.onMouseOver = function() {
+    if(this.state != Sprite.State.Move) return false;
+    this.opacity = 1;
+}
+
+Sprite.prototype.onMouseClick = function() {
     if(this.state != Sprite.State.Move) return false;
     this.restart();
-    // this.img.style.opacity = 0.5;
 }
 
 ///////////// class Sprite end here //////////////////
@@ -99,7 +112,18 @@ function onMouseMove(ev){
     for(var i = 0; i < app.spriteList.length; i++) {
         sp = app.spriteList[i];
         if(sp.isCollide(ev.clientX, ev.clientY)){
-            sp.onCollide();
+            sp.onMouseOver();
+            return;
+        }
+    }
+}
+
+function onMouseClick(ev){
+    var sp;
+    for(var i = 0; i < app.spriteList.length; i++) {
+        sp = app.spriteList[i];
+        if(sp.isCollide(ev.clientX, ev.clientY)){
+            sp.onMouseClick();
             return;
         }
     }
@@ -127,8 +151,9 @@ function update(time) {
 }
 
 function init() {
-    app.canv = document.body.appendChild(document.createElement('canvas'));
-    app.canv.setAttribute('id', 'app-canvas');
+    // app.canv = document.body.appendChild(document.createElement('canvas'));
+    // app.canv.setAttribute('id', 'app-canvas');
+    app.canv = document.getElementById("appCanvas");
     app.canv.setAttribute('width', window.innerWidth);
     app.canv.setAttribute('height', window.innerHeight);
     app.canv.style.setProperty('position', 'absolute');
@@ -147,6 +172,7 @@ function init() {
     };
     // register mouse event
     app.canv.addEventListener("mousemove", onMouseMove);
+    app.canv.addEventListener("click", onMouseClick);
 }
 
 init();
