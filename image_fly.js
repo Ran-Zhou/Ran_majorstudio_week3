@@ -83,15 +83,21 @@ Sprite.prototype.updateMove = function(){
 }
 
 Sprite.prototype.updateFlayAway = function(){
-
+    this.position.x += this.speed.x;
+    this.position.y += this.speed.y;
+    if (this.position.x < -this.img.width || this.position.x > app.canv.width
+    || this.position.y < -this.img.height || this.position.y > app.canv.height) {
+        this.restart();
+    }
 }
 
 Sprite.prototype.isCollide = function(x, y) {
     if(this.state != Sprite.State.Move) return false;
-    if(x < this.position.x) return false;
-    if(x > this.position.x + this.img.width) return false;
-    if(y < this.position.y) return false;
-    if(y > this.position.y + this.img.height) return false;
+    var tolerance = 50;
+    if(x < this.position.x - tolerance) return false;
+    if(x > this.position.x + this.img.width + tolerance) return false;
+    if(y < this.position.y - tolerance) return false;
+    if(y > this.position.y + this.img.height + tolerance) return false;
     return true;
 }
 
@@ -102,7 +108,14 @@ Sprite.prototype.onMouseOver = function() {
 
 Sprite.prototype.onMouseClick = function() {
     if(this.state != Sprite.State.Move) return false;
-    this.restart();
+    var getRandomSpeed = function(){ // a local function
+        var direct = Math.random() < 0.5 ? 1 : -1;
+        var speed = Math.random() * 15 + 10;
+        return speed * direct;
+    }
+    this.speed.x = getRandomSpeed();
+    this.speed.y = getRandomSpeed();
+    this.state = Sprite.State.FlyAway;
 }
 
 ///////////// class Sprite end here //////////////////
