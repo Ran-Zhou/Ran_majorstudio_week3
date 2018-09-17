@@ -89,6 +89,7 @@ Sprite.prototype.isCollide = function(x, y) {
 Sprite.prototype.onCollide = function() {
     if(this.state != Sprite.State.Move) return false;
     this.restart();
+    // this.img.style.opacity = 0.5;
 }
 
 ///////////// class Sprite end here //////////////////
