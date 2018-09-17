@@ -4,7 +4,8 @@ var app = app || {};
 window.app = app;
 app.CLEAR_COLOR_FILL = '#000000';
 
-var imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png", "10.png"]
+var g_spriteNum = 20;
+var g_imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png", "10.png"];
 
 
 ///////////// class Sprite start here //////////////////
@@ -27,14 +28,12 @@ Sprite.State = { "Loading":0, "Idle": 1, "Move": 2, "FlyAway":3 }
 
 Sprite.prototype.restart = function() {
     this.state = Sprite.State.Idle;
-    console.log("~~~~"+this.img.width+",");
     this.pastTime = 0;
     this.delay = Math.random() * 8000; // randomly delay appear
     this.position.y = (Math.random() + 0.03) * app.canv.height * 0.85; // keep image not too close to bottom
     this.speed.x = Math.random() * 2 + 0.5;
     if(Math.random() > 0.5){
         this.position.x = -this.img.width;
-        // this.position.x = 0;
     } else {
         this.position.x = app.canv.width;
         this.speed.x *= -1;
@@ -78,8 +77,32 @@ Sprite.prototype.updateFlayAway = function(){
 
 }
 
+Sprite.prototype.isCollide = function(x, y) {
+    if(this.state != Sprite.State.Move) return false;
+    if(x < this.position.x) return false;
+    if(x > this.position.x + this.img.width) return false;
+    if(y < this.position.y) return false;
+    if(y > this.position.y + this.img.height) return false;
+    return true;
+}
+
+Sprite.prototype.onCollide = function() {
+    if(this.state != Sprite.State.Move) return false;
+    this.restart();
+}
+
 ///////////// class Sprite end here //////////////////
 
+function onMouseMove(ev){
+    var sp;
+    for(var i = 0; i < app.spriteList.length; i++) {
+        sp = app.spriteList[i];
+        if(sp.isCollide(ev.clientX, ev.clientY)){
+            sp.onCollide();
+            return;
+        }
+    }
+}
 
 function drawBackground() {
     app.ctx.fillStyle = app.CLEAR_COLOR_FILL;
@@ -90,9 +113,11 @@ var g_last_time = 0;
 
 function update(time) {
     if(typeof(time) == "undefined") return;
+    drawBackground();
+
+    // calculate delta time
     var deltaTime = time - g_last_time;
     g_last_time = time;
-    drawBackground();
     var sp;
     for(var i = 0; i < app.spriteList.length; i++) {
         sp = app.spriteList[i];
@@ -114,13 +139,13 @@ function init() {
     app.canv.style.setProperty('height', '100%');
     app.ctx = app.canv.getContext('2d');
 
-    app.SPRITE_NUM = 15;
-
     // create sprites
-    app.spriteList = new Array(app.SPRITE_NUM);
+    app.spriteList = new Array(g_spriteNum);
     for (var i = 0; i < app.spriteList.length; i++) {
-        app.spriteList[i] = new Sprite('images/' + imageList[i % imageList.length])
+        app.spriteList[i] = new Sprite('images/' + g_imageList[i % g_imageList.length])
     };
+    // register mouse event
+    app.canv.addEventListener("mousemove", onMouseMove);
 }
 
 init();
