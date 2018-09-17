@@ -4,75 +4,89 @@ var app = app || {};
 window.app = app;
 app.CLEAR_COLOR_FILL = '#000000';
 
-imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png", "10.png"]
+var imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png", "10.png"]
 
-function Sprite(){
+
+///////////// class Sprite start here //////////////////
+
+function Sprite(imageName){
+    this.img = new Image();
+    this.img.src = imageName;
     this.position = { x:0, y:0 };
     this.speed = { x:0, y:0 };
-
-    this.img = new Image();
-    var idx = Math.floor(Math.random() * imageList.length)
-    this.img.src = 'images/' + imageList[idx];
-    this.position.y = Math.random() * app.canv.height
-    this.position.x = Math.random() > 0.5 ? 0 : app.canv.width
-    this.speed.x = Math.random() * 2 + 0.5
+    this.restart();
 }
 
+Sprite.State = { "Idle": 0, "Move": 1, "FlyAway":2 }
 
+Sprite.prototype.restart = function() {
+    this.state = Sprite.State.Idle;
+    this.pastTime = 0;
+    this.delay = Math.random() * 10000 + 5000;
+    this.position.y = (Math.random() + 0.03) * app.canv.height * 0.85; // keep image not too close to bottom
+    this.speed.x = Math.random() * 2 + 0.5;
+    if(Math.random() > 0.5){
+        this.position.x = 0;
+    } else {
+        this.position.x = app.canv.width;
+        this.speed.x *= -1;
+    }
+}
 
-Sprite.prototype.draw = function(dt){
+Sprite.prototype.draw = function(){
+    if(this.state == Sprite.State.Idle) return;
     app.ctx.drawImage(this.img, this.position.x, this.position.y);
 }
 
-/**
- *  Original lab-like functions
- */
-function handleSprite(sp) {
-    // Move by speed, bounce off screen edges.
-    sp.position.x += sp.speed.x;
-    // sp.position.y += sp.speed.y;
-   if (sp.position.x < -400)
-    {
-        sp.speed.x = Math.abs(sp.speed.x);
-        sp.position.x = -400;
+Sprite.prototype.update = function(dt){
+    this.pastTime += dt;
+    switch(this.state) {
+        case Sprite.State.Move:
+            this.updateMove();
+            break;
+        case Sprite.State.FlyAway:
+            this.updateFlayAway();
+            break;
+        default:
+            this.updateIdle();
     }
+    this.draw();
+}
 
-    if (sp.position.x > app.canv.width)
-    {
-        sp.speed.x = -Math.abs(sp.speed.x);
-        sp.position.x = app.canv.width;
+Sprite.prototype.updateIdle = function(){
+    if(this.pastTime < this.delay) return;
+    this.state = Sprite.State.Move;
+}
+
+Sprite.prototype.updateMove = function(){
+    this.position.x += this.speed.x;
+    if (this.position.x < 0 || this.position.x > app.canv.width) {
+       this.restart();
     }
 }
 
+Sprite.prototype.updateFlayAway = function(){
 
-function drawSprite(dt, sp) {
-    app.ctx.drawImage(sp.img, sp.position.x, sp.position.y);
 }
 
+///////////// class Sprite end here //////////////////
 
-
-function spriteInit(sp){
-    var idx = Math.floor(Math.random() * imageList.length)
-    sp.img = new Image();
-    sp.img.src = 'images/' + imageList[idx];
-    sp.position.y = Math.random() * app.canv.height
-    sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
-    sp.speed.x = Math.random() * 2 + 0.5
-}
 
 function drawBackground() {
     app.ctx.fillStyle = app.CLEAR_COLOR_FILL;
     app.ctx.fillRect(0, 0, app.canv.width, app.canv.height);
 }
 
+var g_last_time = 0;
 
-function update(dt) {
+function update(time) {
+    var deltaTime = time - g_last_time;
+    g_last_time = time;
     drawBackground();
     var sp;
     for(var i = 0; i < app.spriteList.length; i++) {
         sp = app.spriteList[i];
-        handleSprite(sp);
-        sp.draw(dt);
+        sp.update(deltaTime);
     }
 }
 
@@ -101,7 +115,7 @@ function init() {
      */
     app.spriteList = new Array(app.FLOCK_SIZE);
     for (var i = 0; i < app.spriteList.length; i++) {
-        app.spriteList[i] = new Sprite()
+        app.spriteList[i] = new Sprite('images/' + imageList[i % imageList.length])
     };
 }
 
