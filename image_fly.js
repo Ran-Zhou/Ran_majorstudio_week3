@@ -1,9 +1,9 @@
 // Create app namespace
 var app = app || {};
 window.app = app;
-app.CLEAR_COLOR_FILL = '#292522';
+app.CLEAR_COLOR_FILL = '#000000';
 
-imageList = ["picture1.png", "picture1.png"]
+imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png", "10.png"]
 
 /**
  *  SpriteRec class
@@ -27,11 +27,14 @@ function NewSprite() {
             y: 0
         },
         img: null,
+        //img: [0]
         pastTime: 0
     });
     spriteInit(sp)
     return sp;
+
 }
+
 
 /**
  *  Original lab-like functions
@@ -40,10 +43,10 @@ function handleSprite(sp) {
     // Move by speed, bounce off screen edges.
     sp.position.x += sp.speed.x;
     // sp.position.y += sp.speed.y;
-    if (sp.position.x < 0)
+   if (sp.position.x < -400)
     {
         sp.speed.x = Math.abs(sp.speed.x);
-        sp.position.x = 0;
+        sp.position.x = -400;
     }
 
     if (sp.position.x > app.canv.width)
@@ -53,6 +56,7 @@ function handleSprite(sp) {
     }
 }
 
+
 function drawSprite(dt, sp) {
     app.ctx.drawImage(sp.img, sp.position.x, sp.position.y);
 }
@@ -61,17 +65,26 @@ function drawSprite(dt, sp) {
 
 function spriteInit(sp){
     var idx = Math.floor(Math.random() * imageList.length)
+
+
+
+
     sp.img = new Image();
-    sp.img.src='images/' + imageList[idx];
+    sp.img.src = 'images/' + imageList[idx];
     sp.position.y = Math.random() * app.canv.height
     sp.position.x = Math.random() > 0.5 ? 0 : app.canv.width
-    sp.speed.x = Math.random() * 3 + 0.5
+    sp.speed.x = Math.random() * 2 + 0.5
+
+
+
+
 }
 
 function drawBackground() {
     app.ctx.fillStyle = app.CLEAR_COLOR_FILL;
     app.ctx.fillRect(0, 0, app.canv.width, app.canv.height);
 }
+
 
 
 /**
@@ -89,7 +102,9 @@ function draw(dt) {
         sp = app.spriteList[i];
         handleSprite(sp);
         drawSprite(dt, sp);
+
     }
+
 }
 
 function update() {
