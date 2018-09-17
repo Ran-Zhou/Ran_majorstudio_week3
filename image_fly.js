@@ -10,23 +10,31 @@ var imageList = ["3.png", "5.png", "11.png", "6.png", "7.png", "8.png", "9.png",
 ///////////// class Sprite start here //////////////////
 
 function Sprite(imageName){
-    this.img = new Image();
-    this.img.src = imageName;
     this.position = { x:0, y:0 };
     this.speed = { x:0, y:0 };
-    this.restart();
+    this.pastTime = 0;
+    this.state = Sprite.State.Loading;
+    // load image
+    this.img = new Image();
+    var self = this;
+    this.img.onload = function(){
+        self.restart();
+    };
+    this.img.src = imageName;
 }
 
-Sprite.State = { "Idle": 0, "Move": 1, "FlyAway":2 }
+Sprite.State = { "Loading":0, "Idle": 1, "Move": 2, "FlyAway":3 }
 
 Sprite.prototype.restart = function() {
     this.state = Sprite.State.Idle;
+    console.log("~~~~"+this.img.width+",");
     this.pastTime = 0;
-    this.delay = Math.random() * 10000 + 5000;
+    this.delay = Math.random() * 8000; // randomly delay appear
     this.position.y = (Math.random() + 0.03) * app.canv.height * 0.85; // keep image not too close to bottom
     this.speed.x = Math.random() * 2 + 0.5;
     if(Math.random() > 0.5){
-        this.position.x = 0;
+        this.position.x = -this.img.width;
+        // this.position.x = 0;
     } else {
         this.position.x = app.canv.width;
         this.speed.x *= -1;
@@ -39,6 +47,7 @@ Sprite.prototype.draw = function(){
 }
 
 Sprite.prototype.update = function(dt){
+    if(this.state == Sprite.State.Loading) return;
     this.pastTime += dt;
     switch(this.state) {
         case Sprite.State.Move:
@@ -60,7 +69,7 @@ Sprite.prototype.updateIdle = function(){
 
 Sprite.prototype.updateMove = function(){
     this.position.x += this.speed.x;
-    if (this.position.x < 0 || this.position.x > app.canv.width) {
+    if (this.position.x < -this.img.width || this.position.x > app.canv.width) {
        this.restart();
     }
 }
@@ -80,6 +89,7 @@ function drawBackground() {
 var g_last_time = 0;
 
 function update(time) {
+    if(typeof(time) == "undefined") return;
     var deltaTime = time - g_last_time;
     g_last_time = time;
     drawBackground();
@@ -91,9 +101,6 @@ function update(time) {
 }
 
 function init() {
-    /**
-     *  Init canvas and add to app
-     */
     app.canv = document.body.appendChild(document.createElement('canvas'));
     app.canv.setAttribute('id', 'app-canvas');
     app.canv.setAttribute('width', window.innerWidth);
@@ -107,13 +114,10 @@ function init() {
     app.canv.style.setProperty('height', '100%');
     app.ctx = app.canv.getContext('2d');
 
-    app.FLOCK_SIZE = 10;
-    app.FLOCK_MAX_DISTANCE_SQUARED = app.canv.width*app.canv.width / 9;
+    app.SPRITE_NUM = 15;
 
-    /**
-     *  Create sprites
-     */
-    app.spriteList = new Array(app.FLOCK_SIZE);
+    // create sprites
+    app.spriteList = new Array(app.SPRITE_NUM);
     for (var i = 0; i < app.spriteList.length; i++) {
         app.spriteList[i] = new Sprite('images/' + imageList[i % imageList.length])
     };
